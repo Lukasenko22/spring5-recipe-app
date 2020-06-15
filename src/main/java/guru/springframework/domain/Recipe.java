@@ -1,8 +1,7 @@
 package guru.springframework.domain;
 
-import org.hibernate.annotations.GeneratorType;
-
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,16 +17,27 @@ public class Recipe {
     private Integer servings;
     private String source;
     private String url;
+
+    @Lob
     private String directions;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
-    private Set<Ingredient> ingredient;
+    private Set<Ingredient> ingredients;
 
     @Lob
     private Byte[] image;
 
+    @Enumerated(value = EnumType.STRING)
+    private Difficulty difficulty;
+
     @OneToOne(cascade = CascadeType.ALL)
     private Notes notes;
+
+    @ManyToMany
+    @JoinTable(name = "recipe_category",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories;
 
     public Recipe() {
     }
@@ -96,12 +106,24 @@ public class Recipe {
         this.directions = directions;
     }
 
-    public Set<Ingredient> getIngredient() {
-        return ingredient;
+    public Recipe addIngredient(Ingredient ingredient){
+        ingredient.setRecipe(this);
+        if (ingredients == null){
+            ingredients = new HashSet<>();
+        }
+        this.ingredients.add(ingredient);
+        return this;
     }
 
-    public void setIngredient(Set<Ingredient> ingredient) {
-        this.ingredient = ingredient;
+    public Set<Ingredient> getIngredients() {
+        if (ingredients == null){
+            ingredients = new HashSet<>();
+        }
+        return ingredients;
+    }
+
+    public void setIngredients(Set<Ingredient> ingredients) {
+        this.ingredients = ingredients;
     }
 
     public Byte[] getImage() {
@@ -112,11 +134,31 @@ public class Recipe {
         this.image = image;
     }
 
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
     public Notes getNotes() {
         return notes;
     }
 
     public void setNotes(Notes notes) {
         this.notes = notes;
+        notes.setRecipe(this);
+    }
+
+    public Set<Category> getCategories() {
+        if (categories == null){
+            categories = new HashSet<>();
+        }
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
     }
 }
