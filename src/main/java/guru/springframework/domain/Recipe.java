@@ -1,12 +1,13 @@
 package guru.springframework.domain;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Data @ToString(exclude = {"ingredients","notes"})
 @Entity
 public class Recipe {
 

@@ -127,9 +127,11 @@ public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
                 "The simplest version of guacamole is just mashed avocados with salt. Don't let the lack of availability of other ingredients stop you from making guacamole.\n" +
                 "To extend a limited supply of avocados, add either sour cream or cottage cheese to your guacamole dip. Purists may be horrified, but so what? It tastes great.\n" +
                 "\n" +
-                "\n" +
-                "Read more: http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws");
+                "\n");
         guacRecipe.setNotes(guacNotes);
+        guacRecipe.setUrl("http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws");
+        guacRecipe.setServings(4);
+        guacRecipe.setSource("Simply Recipes");
 
         guacRecipe.addIngredient(new Ingredient("ripe avocados", new BigDecimal(2), eachUom));
         guacRecipe.addIngredient(new Ingredient("Kosher salt", new BigDecimal(".5"), teapoonUom));
@@ -173,9 +175,11 @@ public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
                 "First, I marinate the chicken briefly in a spicy paste of ancho chile powder, oregano, cumin, and sweet orange juice while the grill is heating. You can also use this time to prepare the taco toppings.\n" +
                 "Grill the chicken, then let it rest while you warm the tortillas. Now you are ready to assemble the tacos and dig in. The whole meal comes together in about 30 minutes!\n" +
                 "\n" +
-                "\n" +
-                "Read more: http://www.simplyrecipes.com/recipes/spicy_grilled_chicken_tacos/#ixzz4jvu7Q0MJ");
+                "\n");
         tacosRecipe.setNotes(tacoNotes);
+        tacosRecipe.setUrl("http://www.simplyrecipes.com/recipes/spicy_grilled_chicken_tacos/#ixzz4jvu7Q0MJ");
+        tacosRecipe.setServings(6);
+        tacosRecipe.setSource("Simply Recipes");
 
         tacosRecipe.addIngredient(new Ingredient("Ancho Chili Powder", new BigDecimal(2), tableSpoonUom));
         tacosRecipe.addIngredient(new Ingredient("Dried Oregano", new BigDecimal(1), teapoonUom));
@@ -205,6 +209,7 @@ public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
         log.debug("Recipes count: "+recipes.size());
         for (Recipe r : recipes){
             log.debug(r.getDescription());
+            log.debug("Ingredients: "+r.getIngredients().size());
         }
 
         return recipes;

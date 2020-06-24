@@ -14,23 +14,27 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-primary">
-                <h1 class="mt-5">My Recipes</h1>
-                <div class="panel-body">
-                    <table class="table table-bordered table-hover" th:if="${not #lists.isEmpty(recipes)}">
-                        <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="recipe : ${recipes}">
-                            <td th:text="${recipe.id}">123</td>
-                            <td th:text="${recipe.description}">Nazov receptu</td>
-                        </tr>
-                        </tbody>
-                    </table>
+            <div class="pannel-group">
+                <div class="panel panel-primary">
+                    <h1 class="mt-5">My Recipes</h1>
+                    <div class="panel-body">
+                        <table class="table table-bordered table-hover" th:if="${not #lists.isEmpty(recipes)}">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="recipe : ${recipes}">
+                                <td><a href="#"
+                                       th:href="@{'/recipe/show/'+${recipe.id}}"
+                                       th:text="${recipe.id}">View detail</a></td>
+                                <td th:text="${recipe.description}">Nazov receptu</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
