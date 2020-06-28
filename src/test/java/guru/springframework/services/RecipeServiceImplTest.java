@@ -1,5 +1,7 @@
 package guru.springframework.services;
 
+import guru.springframework.converters.RecipeCommandToRecipe;
+import guru.springframework.converters.RecipeToRecipeCommand;
 import guru.springframework.domain.Recipe;
 import guru.springframework.repositories.RecipeRepository;
 import org.junit.Before;
@@ -24,10 +26,16 @@ public class RecipeServiceImplTest {
     @Mock
     RecipeRepository recipeRepository;
 
+    @Mock
+    RecipeToRecipeCommand recipeToRecipeCommand;
+
+    @Mock
+    RecipeCommandToRecipe recipeCommandToRecipe;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        recipeService = new RecipeServiceImpl(recipeRepository);
+        recipeService = new RecipeServiceImpl(recipeRepository, recipeToRecipeCommand, recipeCommandToRecipe);
     }
 
     @Test
@@ -55,6 +63,13 @@ public class RecipeServiceImplTest {
 
         assertNotNull(returnedRecipe);
         verify(recipeRepository,times(1)).findById(anyLong());
+    }
+
+    @Test
+    public void deleteById(){
+        recipeService.deleteRecipeById(2L);
+        // no 'when' because the method has void return type
+        verify(recipeRepository,times(1)).deleteById(anyLong());
     }
 
 }
