@@ -1,13 +1,17 @@
 package guru.springframework.services;
 
 import guru.springframework.commands.IngredientCommand;
+import guru.springframework.converters.IngredientCommandToIngredient;
 import guru.springframework.converters.IngredientToIngredientCommand;
 import guru.springframework.domain.Ingredient;
 import guru.springframework.domain.Recipe;
+import guru.springframework.domain.UnitOfMeasure;
 import guru.springframework.repositories.RecipeRepository;
+import guru.springframework.repositories.UnitOfMeasureRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -16,13 +20,19 @@ import java.util.Optional;
 public class IngredientServiceImpl implements IngredientService {
 
     private RecipeRepository recipeRepository;
+    private UnitOfMeasureRepository unitOfMeasureRepository;
     private IngredientToIngredientCommand ingredientToIngredientCommand;
+    private IngredientCommandToIngredient ingredientCommandToIngredient;
 
     @Autowired
     public IngredientServiceImpl(RecipeRepository recipeRepository,
-                                 IngredientToIngredientCommand ingredientToIngredientCommand) {
+                                 UnitOfMeasureRepository unitOfMeasureRepository,
+                                 IngredientToIngredientCommand ingredientToIngredientCommand,
+                                 IngredientCommandToIngredient ingredientCommandToIngredient) {
         this.recipeRepository = recipeRepository;
+        this.unitOfMeasureRepository = unitOfMeasureRepository;
         this.ingredientToIngredientCommand = ingredientToIngredientCommand;
+        this.ingredientCommandToIngredient = ingredientCommandToIngredient;
     }
 
     @Override
@@ -46,5 +56,52 @@ public class IngredientServiceImpl implements IngredientService {
         }
 
         return ingredientCommand;
+    }
+
+    @Override
+    @Transactional
+    public IngredientCommand saveOrUpdateIngredientCommand(IngredientCommand ingredientCommand) {
+        Optional<Recipe> recipeOpt = recipeRepository.findById(ingredientCommand.getRecipeId());
+        if (!recipeOpt.isPresent()){
+            throw new RuntimeException("Recipe with id="+ingredientCommand.getRecipeId()+" not found!");
+        }
+
+        Recipe recipe = recipeOpt.get();
+
+        boolean foundIngredient = false;
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            if (ingredient.getId().equals(ingredientCommand.getId())){
+                // Update existing ingredient
+                ingredient.setDescription(ingredientCommand.getDescription());
+                ingredient.setAmount(ingredientCommand.getAmount());
+
+                Optional<UnitOfMeasure> uomOpt = unitOfMeasureRepository
+                        .findById(ingredientCommand.getUnitOfMeasureCommand().getId());
+
+                if (!uomOpt.isPresent()){
+                    throw new RuntimeException("Unit of measure with " +
+                            "id="+ingredientCommand.getUnitOfMeasureCommand().getId()+" not found!");
+                }
+
+                ingredient.setUnitOfMeasure(uomOpt.get());
+                foundIngredient = true;
+            }
+        }
+
+        if (recipe.getIngredients().isEmpty() || !foundIngredient){
+            // Add new Ingredient
+            ingredientCommand.setRecipeId(recipe.getId());
+            recipe.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+        }
+
+        Recipe savedRecipe = recipeRepository.save(recipe);
+
+        for (Ingredient ingredient : savedRecipe.getIngredients()) {
+            if (ingredient.getId().equals(ingredientCommand.getId())){
+                return ingredientToIngredientCommand.convert(ingredient);
+            }
+        }
+        return ingredientToIngredientCommand.convert(
+                savedRecipe.getIngredients().get(savedRecipe.getIngredients().size()-1));
     }
 }

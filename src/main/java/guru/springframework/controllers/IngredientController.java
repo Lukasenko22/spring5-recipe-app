@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -59,6 +61,26 @@ public class IngredientController {
         List<UnitOfMeasureCommand> unitOfMeasureList = unitOfMeasureService.findAllUnitOfMeasures();
         model.addAttribute("uomList",unitOfMeasureList);
 
+        return "recipe/ingredient/ingredient-form";
+    }
+
+    @PostMapping("/recipe/{recipeId}/ingredient")
+    public String saveOrUpdateIngredient(@ModelAttribute IngredientCommand ingredientCommand){
+        IngredientCommand savedIngCommand = ingredientService.saveOrUpdateIngredientCommand(ingredientCommand);
+        return "redirect:/recipe/"+savedIngCommand.getRecipeId()+"/ingredient/"+savedIngCommand.getId()+"/show";
+    }
+
+    @GetMapping("/recipe/{recipeId}/ingredient/new")
+    public String showNewIngredientForm(@PathVariable String recipeId, Model model){
+        RecipeCommand recipeCommand = recipeService.findRecipeCommandById(Long.valueOf(recipeId));
+
+        IngredientCommand ingredientCommand = new IngredientCommand();
+        ingredientCommand.setRecipeId(recipeCommand.getId());
+
+        List<UnitOfMeasureCommand> unitOfMeasureCommands = unitOfMeasureService.findAllUnitOfMeasures();
+        model.addAttribute("uomList", unitOfMeasureCommands);
+
+        model.addAttribute("ingredient", ingredientCommand);
         return "recipe/ingredient/ingredient-form";
     }
 }

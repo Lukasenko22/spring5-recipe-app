@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data @ToString(exclude = {"ingredients","notes"})
@@ -26,7 +28,7 @@ public class Recipe {
     private String directions;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
-    private Set<Ingredient> ingredients;
+    private List<Ingredient> ingredients;
 
     @Lob
     private Byte[] image;
@@ -49,15 +51,15 @@ public class Recipe {
     public Recipe addIngredient(Ingredient ingredient){
         ingredient.setRecipe(this);
         if (ingredients == null){
-            ingredients = new HashSet<>();
+            ingredients = new ArrayList<>();
         }
         this.ingredients.add(ingredient);
         return this;
     }
 
-    public Set<Ingredient> getIngredients() {
+    public List<Ingredient> getIngredients() {
         if (ingredients == null){
-            ingredients = new HashSet<>();
+            ingredients = new ArrayList<>();
         }
         return ingredients;
     }

@@ -15,7 +15,7 @@
     <div class="row">
         <div class="col-md-12">
             <!--/*@thymesVar id="ingredient" type="guru.springframework.commands.IngredientCommand"*/-->
-            <form  th:object="${ingredient}" th:action="@{'/recipe/' + ${ingredient.getRecipeId()} + '/ingredient'} " method="post">
+            <form  th:object="${ingredient}" th:action="@{'/recipe/' + ${ingredient.recipeId} + '/ingredient'} " method="post">
                 <input type="hidden" th:field="*{id}"/>
                 <div class="pannel-group">
                     <div class="panel panel-primary">
@@ -36,11 +36,11 @@
 
                                 <div class="col-md-3 form-group">
                                     <label>UOM:</label>
-                                    <select class="form-control" name="uom.id">
+                                    <select class="form-control" name="unitOfMeasureCommand.id">
                                         <!--/*@thymesVar id="uomList" type="java.util.List"*/-->
                                         <option th:each="uomItem : ${uomList}"
                                                 th:value="${uomItem.id}"
-                                                th:selected="${uomItem.id.equals(ingredient.unitOfMeasure.id)}"
+                                                th:selected="${uomItem.equals(ingredient.unitOfMeasureCommand)}"
                                                 th:text="${uomItem.description}">Tablespoon</option>
                                     </select>
                                 </div>
