@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -115,4 +116,24 @@ public class IngredientControllerTest {
         verify(ingredientService,times(1)).saveOrUpdateIngredientCommand(any());
     }
 
+    @Test
+    public void deleteIngredientTest() throws Exception {
+        //given
+        long ingredientId = 2L;
+        long recipeId = 1L;
+
+        IngredientCommand ingredientCommand = new IngredientCommand();
+        ingredientCommand.setId(ingredientId);
+        ingredientCommand.setRecipeId(recipeId);
+
+        //when
+        when(ingredientService.findByIdAndRecipeId(anyLong(),anyLong())).thenReturn(ingredientCommand);
+
+        //then
+        mockmvc.perform(delete("/recipe/"+recipeId+"/ingredient/"+ingredientId+"/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/recipe/"+recipeId+"/ingredients"));
+
+        verify(ingredientService,times(1)).deleteIngredientByIdAndRecipeId(anyLong(),anyLong());
+    }
 }

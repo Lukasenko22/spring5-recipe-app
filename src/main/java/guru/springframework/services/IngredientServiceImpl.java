@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 @Slf4j
@@ -103,5 +104,32 @@ public class IngredientServiceImpl implements IngredientService {
         }
         return ingredientToIngredientCommand.convert(
                 savedRecipe.getIngredients().get(savedRecipe.getIngredients().size()-1));
+    }
+
+    @Override
+    @Transactional
+    public void deleteIngredientByIdAndRecipeId(Long ingredientId, Long recipeId) {
+        Optional<Recipe> recipeOpt = recipeRepository.findById(recipeId);
+        if (!recipeOpt.isPresent()){
+            throw new RuntimeException("Recipe with id="+recipeId+" not found!");
+        }
+
+        Recipe recipe = recipeOpt.get();
+        Ingredient foundIngredient = null;
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            if (ingredient.getId().equals(ingredientId)){
+                foundIngredient = ingredient;
+            }
+        }
+
+        if (foundIngredient == null){
+            throw new RuntimeException("Ingredient id="+ingredientId+" for recipe id="+recipeId+" not found!");
+        }
+
+        foundIngredient.setRecipe(null);
+        recipe.getIngredients().remove(foundIngredient);
+        recipeRepository.save(recipe);
+
+        log.debug("Ingredient with id="+ingredientId+" has been deleted!");
     }
 }

@@ -149,4 +149,31 @@ public class IngredientServiceImplTest {
         assertEquals("Test updated recipe",savedIngredientCommand.getDescription());
     }
 
+    @Test
+    public void deleteIngredientTest(){
+        //given
+        long ingredientId = 2L;
+        long recipeId = 1L;
+
+        Recipe recipe = new Recipe();
+        recipe.setId(recipeId);
+
+        Ingredient ing1 = new Ingredient();
+        ing1.setId(1L);
+        Ingredient ing2 = new Ingredient();
+        ing2.setId(ingredientId);
+
+        recipe.addIngredient(ing1);
+        recipe.addIngredient(ing2);
+
+        Optional<Recipe> optRecipe = Optional.of(recipe);
+
+        //when
+        when(recipeRepository.findById(anyLong())).thenReturn(optRecipe);
+
+        //then
+        ingredientService.deleteIngredientByIdAndRecipeId(ingredientId,recipeId);
+
+        verify(recipeRepository,times(1)).save(any());
+    }
 }
