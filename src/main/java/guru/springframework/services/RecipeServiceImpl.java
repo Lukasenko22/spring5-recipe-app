@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -70,8 +71,6 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public void deleteRecipeById(Long id) {
         recipeRepository.deleteById(id);
-        log.debug("Recipe with id="+id+" is deleted!");
+        log.debug("Recipe with id=" + id + " is deleted!");
     }
-
-
 }

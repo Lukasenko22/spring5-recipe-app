@@ -4,6 +4,7 @@ import guru.springframework.commands.RecipeCommand;
 import guru.springframework.domain.Recipe;
 import guru.springframework.repositories.RecipeRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 

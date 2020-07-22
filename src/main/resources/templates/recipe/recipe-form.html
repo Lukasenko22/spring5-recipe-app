@@ -59,7 +59,13 @@
                                 </div>
                                 <div class="col-md-3 form-group">
                                     <label>Difficulty:</label>
-                                    <select class="form-control">
+                                    <select class="form-control" th:field="*{difficulty}">
+                                        <option th:each="difficultyValue : ${T(guru.springframework.domain.Difficulty).values()}"
+                                            th:value="${difficultyValue.name()}"
+                                            th:text="${difficultyValue.name()}">Difficulty Value</option>
+                                    </select>
+
+                                    <select class="form-control" th:remove="all">
                                         <option>Easy</option>
                                         <option>Medium</option>
                                         <option>Hard</option>
@@ -86,7 +92,7 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <h1 class="panel-title">Ingredients <a class="btn btn-primary" href="#" role="button">Edit</a></h1>
+                                    <h1 class="panel-title">Ingredients</h1>
                                 </div>
                             </div>
                         </div>
@@ -98,7 +104,7 @@
                                         <li th:remove="all">1 Teaspoon of chocolate</li>
                                         <li th:each="ingredient : ${recipe.ingredients}"
                                             th:text="${(ingredient.getAmount() +
-                                        ' ' + ingredient.unitOfMeasure.getDescription() +
+                                        ' ' + ingredient.unitOfMeasureCommand.getDescription() +
                                         ' - ' + ingredient.getDescription())}">1 Teaspoon of Sugar
                                         </li>
                                     </ul>
