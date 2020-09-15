@@ -2,6 +2,7 @@ package guru.springframework.controllers;
 
 import guru.springframework.commands.RecipeCommand;
 import guru.springframework.domain.Recipe;
+import guru.springframework.exceptions.NotFoundException;
 import guru.springframework.services.RecipeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,4 +100,16 @@ public class RecipeControllerTest {
         verify(recipeService,times(1)).deleteRecipeById(anyLong());
     }
 
+    @Test
+    public void testGetRecipeNotFound() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
+
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+
+        when(recipeService.getRecipe(anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1/show"))
+                .andExpect(status().isNotFound());
+    }
 }
