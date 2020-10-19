@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -28,21 +29,21 @@ public class RecipeControllerTest {
     @Mock
     RecipeService recipeService;
 
-    @Mock
-    Model model;
-
     RecipeController recipeController;
+
+    MockMvc mockMvc;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         recipeController = new RecipeController(recipeService);
+        mockMvc = MockMvcBuilders.standaloneSetup(recipeController)
+                .setControllerAdvice(new ExceptionHandlerController())
+                .build();
     }
 
     @Test
     public void getRecipeDetailPage() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
-
         Recipe recipe = new Recipe();
         recipe.setId(1L);
 
@@ -62,11 +63,12 @@ public class RecipeControllerTest {
 
         when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .param("id","")
-                    .param("description","some string"))
+                    .param("description","some string")
+                    .param("directions","some directions")
+                    .param("url","http://someurladdres.com"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/recipe/2/show"));
     }
@@ -79,7 +81,6 @@ public class RecipeControllerTest {
         when(recipeService.findRecipeCommandById(anyLong())).thenReturn(recipeCommand);
         when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("id","")
@@ -92,7 +93,6 @@ public class RecipeControllerTest {
     public void testDeleteRecipe() throws Exception {
         Long recipeId = 2L;
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
         mockMvc.perform(MockMvcRequestBuilders.delete("/recipe/"+recipeId+"/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/index"));
@@ -102,14 +102,37 @@ public class RecipeControllerTest {
 
     @Test
     public void testGetRecipeNotFound() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
-
         Recipe recipe = new Recipe();
         recipe.setId(1L);
 
         when(recipeService.getRecipe(anyLong())).thenThrow(NotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1/show"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("recipe/404error"));
+    }
+
+    @Test
+    public void testGetRecipeNumberFormat() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/recipe/4as/show"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("recipe/400error"));
+    }
+
+    @Test
+    public void testPostNewRecipeFormValidationFail() throws Exception {
+        RecipeCommand recipeCommand = new RecipeCommand();
+        recipeCommand.setId(2L);
+
+        when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("id","")
+                .param("cookTime","3000")
+                .param("url","asddfa://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recipe/recipe-form"))
+                .andExpect(model().attributeExists("recipe"));
     }
 }
