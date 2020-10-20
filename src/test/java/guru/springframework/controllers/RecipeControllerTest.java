@@ -77,14 +77,20 @@ public class RecipeControllerTest {
     public void testPostUpdateRecipeForm() throws Exception {
         RecipeCommand recipeCommand = new RecipeCommand();
         recipeCommand.setId(2L);
+        recipeCommand.setDescription("some string");
+        recipeCommand.setDirections("some directions");
+        recipeCommand.setUrl("http://someurladdres.com");
 
         when(recipeService.findRecipeCommandById(anyLong())).thenReturn(recipeCommand);
+        recipeCommand.setDescription("changed string");
         when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("id","")
-                .param("description","some string"))
+                .param("id","2")
+                .param("description","changed string")
+                .param("directions","some directions")
+                .param("url","http://someurladdres.com"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/recipe/2/show"));
     }
